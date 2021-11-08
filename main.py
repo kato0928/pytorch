@@ -28,9 +28,11 @@ dataset_dir = Path("./datasets")
 batch_size=64
 shuffle=True
 num_workers=4
-train_epochs=10
+train_epochs=20
+# 間違えた又は正解した画像の枚数(0.5は全ての学習において5枚)
 eval_threshold_ratio = 0.5
-eval_threshold_epoch = 10
+# 何回目の学習においての正解，不正解の画像を出す
+eval_threshold_epoch = 20
 
 # model params setting const
 # https://pytorch.org/vision/stable/models.html
@@ -71,6 +73,8 @@ def load_dataset():
         #transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.RandomHorizontalFlip(0.8),
+        transforms.RandomVerticalFlip(0.8),
         #transforms.RandomHorizontalFlip(0.8),
         #transforms.RandomVerticalFlip(0.8),
         #transforms.RandomRotation(degrees=10),
@@ -271,7 +275,7 @@ def dist_epoch(base, mp, ans):
       file_name = os.path.basename(key)
       shutil.copy(key, "{}/{}".format(base, file_name))
 
-def rmDir():
+def rm_dir():
   dirs = [
     "./train_correct_images",
     "./train_error_images",
@@ -283,7 +287,7 @@ def rmDir():
       shutil.rmtree(d)
 
 if __name__ == '__main__':
-  rmDir()
+  rm_dir()
   img_datasets = load_dataset()
   class_names = img_datasets["train"].classes
   print("train model to classify {}".format(class_names))
